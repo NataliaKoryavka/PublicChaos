@@ -6,7 +6,7 @@ Created on Tue Apr 18 01:41:46 2017
 """
 
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip,QApp
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip#,QApp
 from PyQt5.QtGui import QIcon,QFont
 from PyQt5.QtCore import QCoreApplication
 
