@@ -29,7 +29,7 @@ class Example(QWidget):
         btn.resize(btn.sizeHint())
         btn.move(50, 50)
 
-        self.setGeometry(300, 300, 300, 220)
+        self.setGeometry(1000, 300, 700, 500)
         self.setWindowTitle('MyApplication')
         self.setWindowIcon(QIcon('E:\дз2курс\инфа\Тренировка\крест.jpg'))
 
@@ -40,4 +40,4 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     ex = Example()
-    sys.exit(app.exec_())
+    app.exec_()
