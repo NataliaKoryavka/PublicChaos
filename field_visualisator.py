@@ -19,7 +19,7 @@ value = value[0,0,:,:]
 x = x[:]
 y = y[:]
 
-#  Создаём рабочую станцию.
+#  Создаём рабочую станцию
 
 rlist = Ngl.Resources()
 rlist.wkColorMap = 'posneg_1'
