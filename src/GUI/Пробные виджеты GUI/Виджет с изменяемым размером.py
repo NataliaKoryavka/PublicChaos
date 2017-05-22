@@ -53,13 +53,13 @@ class BurningWidget(QWidget):
         size = self.size()
         w = size.width()
         h = size.height()
-
+        print(w)
         step = int(round(w / 10))
 
 
         till = int(((w / 750) * self.value))
         full = int(((w / 750) * 700))
-
+        
         if self.value >= 700:
 
             qp.setPen(QColor(255, 255, 255))

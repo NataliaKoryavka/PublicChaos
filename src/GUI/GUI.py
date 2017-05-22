@@ -6,22 +6,23 @@ Created on Tue Apr 18 01:41:46 2017
 """
 
 import sys
-from PyQt5.QtWidgets import QVBoxLayout,QHBoxLayout,QComboBox,QMainWindow,QDockWidget,QAction,QFileDialog,QApplication, QWidget,QPushButton
-from PyQt5.QtGui import QIcon,QFont, QPainter
-from PyQt5.QtCore import QCoreApplication, Qt
+from PyQt5.QtWidgets import QGridLayout,QVBoxLayout,QHBoxLayout,QComboBox,QMainWindow,QDockWidget,QAction,QFileDialog,QApplication, QWidget,QPushButton
+from PyQt5.QtGui import QColor,QIcon,QFont, QPainter
+from PyQt5.QtCore import QCoreApplication, Qt, pyqtSignal, QObject
 
+class Communicate(QObject):
 
-class Example(QMainWindow):
+    updateP = pyqtSignal(int)
+
+class Window(QMainWindow):
     
     def __init__(self):
         super().__init__()
         self.initUI()
         
     def initUI(self): 
-        self.panel = Panel(self) 
-        self.panel_area = QDockWidget('new',self)
-        self.panel_area.setWidget(self.panel)
-        self.addDockWidget(Qt.BottomDockWidgetArea,self.panel_area)
+        self.widget = Interface(self)
+        self.setCentralWidget(self.widget)
         
         
         exitAction = QAction( QIcon('../resources/exit2.png'),'Exit', self)
@@ -45,7 +46,7 @@ class Example(QMainWindow):
         fileMenu.addAction(saveAction)
         fileMenu.addAction(loadAction)
       
-        self.setGeometry(300, 200, 500, 500)
+        self.setGeometry(200, 200, 500, 500)
         self.setWindowTitle('ChaosTheory')    
         self.show()
         
@@ -63,28 +64,57 @@ class Example(QMainWindow):
         fname = QFileDialog.getOpenFileName(self, 'Open file', '/home')
         if fname[0]:
             return 0
-        
-class Panel(QWidget):
+
+class Canvas(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+    def initUI(self):
+        self.setMinimumSize(200,300)
+    def paintEvent(self, e):
+        qp = QPainter()
+        qp.begin(self)
+        self.drawWidget(qp)
+        qp.end()
+    def drawWidget(self, qp):
+        s = self.size()
+        self.w = s.width()
+        self.h = s.height()        
+        qp.setPen(QColor(255, 255, 255))
+        qp.setBrush(QColor(255, 255, 255))
+        qp.drawRect(0, 0, self.w, self.h)
+        self.show()
+
+       
+class Interface(QWidget):
     def __init__(self,parent):
         super().__init__(parent)
         self.initUI()
         
     def initUI(self):
-        self.list = QComboBox(self)
+        self.col = QColor(100,100,100)
+        self.setAutoFillBackground(True)
+        self.p = self.palette()
+        self.p.setColor(self.backgroundRole(), self.col)
+        self.setPalette(self.p)
+      
+        grid = QGridLayout()
+        
+        self.list = QComboBox(self)       
         self.list.addItem('Person')
         self.list.addItem('Walls')
-        
+               
         self.btn_start = QPushButton('Start',self)
         
-        vertical = QVBoxLayout()
-        vertical.addWidget(self.list)
-        vertical.addStretch(1)
-        vertical.addWidget(self.btn_start)
+        canvas = Canvas()
         
-        
+        grid.addWidget(self.list,2,0)
+        grid.addWidget(self.btn_start,6,0)
+        grid.addWidget(canvas,0,1,12,5)
+        self.setLayout(grid)
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = Example()
+    ex = Window()
     app.exec_()
     print ('')
