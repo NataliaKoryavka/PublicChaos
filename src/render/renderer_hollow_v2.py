@@ -9,32 +9,44 @@ import math
 from math import exp
 import threading
 import time
-#метакласс синглетон
+#Метакласс синглетон
 class Singleton(type):
     _instances = {}
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
-#класс человека - является отдельным тредом. Подчиняется контроллеру, рассчитывает поля и делает шаг.
+#Класс человека - является отдельным тредом. Подчиняется контроллеру, рассчитывает поля и делает шаг.
 class Actor(threading.Thread):
     def __init__(self, pos, param, step, do_step, solve):
         super(Actor, self).__init__()
+        #Позиция в "комнате"
         self.position =  pos# np.array([0, 0])
+        #Поле цели
         self.fieldGoal = []
+        #Поле дискомфорта от препятствия
         self.fieldComfortObstacle = []
+        #Поле дискомфорта от толпы
         self.fieldComfortCrowd = []
+        #Поле скорости
         self.fieldSpeed = 0
+        #Направление движения
         self.direct = np.array([0, 0])
+        #Толпа, содержащая этого человека
         self.crowd #это поле заполнит seeder после создания толпы.
+        #Параметры - см. FieldSolver
         self.param = param
+        #Шаг расчета градиента по X и Y
         self.step = step
+        #Threading.Event(), указывающий сделать шаг
         self.do_step = do_step
+        #Threading.Event(), указывающий сделать расчет градиента
         self.solve = solve
+        #Явялется ли человек "ходоком" - т.е. движется ли он, является ли препятствием для других людей
         self.walker = False
         self.setDaemon(True)
         self.start()
-        
+    #Перегружаем run()
     def run(self):
         while self.walker == True:
             self.solve.wait()
@@ -57,19 +69,24 @@ class Actor(threading.Thread):
             else:
                 self.walker = False
                 break
-#класс стены
+#Класс стены
 class Wall(): #np.array([0,0]) дважды
     def __init__(self, pos1, pos2):
+        #Положение первой точки стены в виде np.array([0, 0])
         self.pos1 = pos1
+        #Положение второй точки стены в виде np.array([0, 0])
         self.pos2 = pos2
 #класс толпы
 class Crowd(metaclass=Singleton): #Singleton
     def __init__(self, actors, walls, goal):
+        #list инстансов людей в толпе
         self.actors = actors
+        #list инстансов препятствий
         self.walls = walls
-        self.goal = goal #np.array([0, 0])
+        #Положение цели в виде np.array([0, 0])
+        self.goal = goal
             
-#расчет плотности толпы
+#Расчет плотности толпы относительно положения pos. Учитываются только люди с walker == True
 class DensitySolver():
     #def __init__(self):
     @staticmethod
@@ -92,8 +109,8 @@ class FieldFunction():
             return s_max
         if (x_max > x_min >= 0) and (s_max > s_min >= 0):
             return s_max + ((x - x_min)*(s_min - s_max))/(x_max - x_min)
-        #else:
-            #виджет "вы неверно ввели параметры". Вернуться к началу
+        else:
+            ???#виджет "вы неверно ввели параметры". Вернуться к началу
     @staticmethod        
     def power(x, s_min, s_max, x_min, x_max, c):
         if x >= x_max:
@@ -104,8 +121,8 @@ class FieldFunction():
             b = (s_min - s_max)*(c + x_min)*(c + x_max)/(x_min - x_max)
             a = s_max - b/(c + x_min)
             return a + b/(c + x)
-        #else:
-            #виджет "вы неверно ввели параметры". Вернуться к началу
+        else:
+            ???#виджет "вы неверно ввели параметры". Вернуться к началу.
 
 #Рассчитывает значения полей цели, поля дискомфорта от препятствий(стен) и поля дискомфорта от людей. 
 class FieldSolver(FieldFunction, DensitySolver):
@@ -114,7 +131,8 @@ class FieldSolver(FieldFunction, DensitySolver):
         self.crowd = crowd
         self.pos = pos
         self.step = step
-        self.x_gmin = param[0] #unpacking params
+        #Распаковка параметров ограничителей для каждого отдельного поля.
+        self.x_gmin = param[0] 
         self.x_gmax = param[1]
         self.x_wmin = param[2]
         self.x_wmax = param[3]
@@ -135,13 +153,14 @@ class FieldSolver(FieldFunction, DensitySolver):
         self.f_min = param[18]
         self.f_max = param[19]
         
-    def fieldGoal(self): #should be linear maybe
+    #Поле цели. Должно быть линейным по смыслу.
+    def fieldGoal(self):
         x_goal = self.linear(self, np.linalg.norm(self.pos - self.crowd.goal), self.s_gmin, self.s_gmax, self.x_gmin, self.x_gmax, self.c_g)
         x_goal_x_step = self.linear(self, np.linalg.norm(self.pos + np.array([self.step, 0]) - self.crowd.goal), self.s_gmin, self.s_gmax, self.x_gmin, self.x_gmax, self.c_g)
         x_goal_y_step = self.linear(self, np.linalg.norm(self.pos + np.array([0, self.step]) - self.crowd.goal), self.s_gmin, self.s_gmax, self.x_gmin, self.x_gmax, self.c_g)
     return [x_goal, x_goal_x_step, x_goal_y_step]
-
-    def fieldComfortObstacle(self): #CHECK PARAMS
+    #Поле дискомфорта от препятствий зависит от углового размера стены относительно человека.
+    def fieldComfortObstacle(self):
         summ = 0
         summ_x_step = 0
         summ_y_step = 0
@@ -156,7 +175,7 @@ class FieldSolver(FieldFunction, DensitySolver):
             vec2_y_step = vec2 - np.array([0, self.step])
             summ_y_step += self.linear(self, np.arccos(np.dot(vec1_y_step, vec2_y_step)/(np.linalg.norm(vec1_y_step)*np.linalg.norm(vec2_y_step))), self.s_wmin, self.s_wmax, self.x_wmin, self.x_wmax, self.c_w)
         return [summ, summ_x_step, summ_y_step]
-    
+    #Поле дискомфорта связанного с толпой зависит от расстояния от человека до каждого другого человека.
     def fieldComfortCrowd(self):
         summ = 0
         summ_x_step = 0
@@ -167,25 +186,27 @@ class FieldSolver(FieldFunction, DensitySolver):
                     summ_x_step += self.power(self, np.linalg.norm(self.pos + np.array([self.step, 0]) - actor.position), self.s_pmin, self.s_pmax, self.x_pmin, self.x_pmax, self.c_p)
                     summ_y_step += self.power(self, np.linalg.norm(self.pos + np.array([0, self.step]) - actor.position), self.s_pmin, self.s_pmax, self.x_pmin, self.x_pmax, self.c_p)
         return [summ, summ_x_step, summ_y_step]
-
+    #Поле скорости зависит от плотности толпы вокруг человека
     def fieldSpeed(self):
         return self.power(self.solveDensity(self.pos, self.crowd), self.f_min, self.f_max, self.p_min, self.p_max, self.c_f)
 
 #Контроллер толпы. Управляет квантизацией времени шага.
 class CrowdController(metaclass=Singleton): #singleton
     def __init__(self, do_step, solve):
+        #Threading.Event(), указывающий сделать шаг
         self.do_step = do_step
+        #Threading.Event(), указывающий сделать расчет градиента
         self.solve = solve
-        self.doStep()
-        
-    def doStep(self):
+        #self.startMove()
+    #Функция, контроллирующая движение    
+    def startMove(self):
         while True:
             try:
                 self.solve.set()
-                time.sleep(5)
+                time.sleep(1)
                 self.solve.clear()
                 self.do_step.set()
-                time.sleep(5)
+                time.sleep(1)
                 self.do_step.clear()
             except KeyboardInterrupt: 
                 self.solve.clear()
@@ -195,15 +216,23 @@ class CrowdController(metaclass=Singleton): #singleton
 #Конструктор. Запускает каскадное создание инстансов, создает инстансы людей. Получает параметры из UI.
 class Constructor(metaclass=Singleton): #singleton
     def __init__(self, crowd_size, step, param): #ЭТО ВВОДИТСЯ ПОЛЬЗОВАТЕЛЕМ В ИНТЕРФЕЙСЕ
+        #Число людей в толпе
         self.crowd_size = crowd_size
+        #Параметры - см. FieldSolver
         self.param = param
+        #шаг расчета градиента
         self.step = step
+        #инстанс синглетона толпы
         self.crowd
+        #Threading.Event(), указывающий сделать шаг
         self.do_step = threading.Event()
+        #Threading.Event(), указывающий сделать расчет градиента
         self.solve = threading.Event()
+        #инстанс синглетона контроллера
         self.crowdController
-        self.seed()
-    def seed(self):
+        self.construct()
+    #Конструктор
+    def construct(self):
         actors = []
         for i in range(self.crowd_size):
             pos = ???
