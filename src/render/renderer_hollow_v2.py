@@ -110,7 +110,8 @@ class FieldFunction():
         if (x_max > x_min >= 0) and (s_max > s_min >= 0):
             return s_max + ((x - x_min)*(s_min - s_max))/(x_max - x_min)
         else:
-            ???#виджет "вы неверно ввели параметры". Вернуться к началу
+            return 0
+            #        ???#виджет "вы неверно ввели параметры". Вернуться к началу
     @staticmethod        
     def power(x, s_min, s_max, x_min, x_max, c):
         if x >= x_max:
@@ -122,7 +123,8 @@ class FieldFunction():
             a = s_max - b/(c + x_min)
             return a + b/(c + x)
         else:
-            ???#виджет "вы неверно ввели параметры". Вернуться к началу.
+            return 0
+            #???#виджет "вы неверно ввели параметры". Вернуться к началу.
 
 #Рассчитывает значения полей цели, поля дискомфорта от препятствий(стен) и поля дискомфорта от людей. 
 class FieldSolver(FieldFunction, DensitySolver):
@@ -215,50 +217,32 @@ class CrowdController(metaclass=Singleton): #singleton
                 
 #Конструктор. Запускает каскадное создание инстансов, создает инстансы людей. Получает параметры из UI.
 class Constructor(metaclass=Singleton): #singleton
-<<<<<<< HEAD
     def __init__(self, step, param): #ЭТО ВВОДИТСЯ ПОЛЬЗОВАТЕЛЕМ В ИНТЕРФЕЙСЕ
-=======
-    def __init__(self, crowd_size, step, param): #ЭТО ВВОДИТСЯ ПОЛЬЗОВАТЕЛЕМ В ИНТЕРФЕЙСЕ
-        #Число людей в толпе
-        self.crowd_size = crowd_size
         #Параметры - см. FieldSolver
->>>>>>> origin/master
         self.param = param
         #шаг расчета градиента
         self.step = step
-<<<<<<< HEAD
-        self.crowd = crowd
-=======
         #инстанс синглетона толпы
         self.crowd
         #Threading.Event(), указывающий сделать шаг
->>>>>>> origin/master
         self.do_step = threading.Event()
         #Threading.Event(), указывающий сделать расчет градиента
         self.solve = threading.Event()
-<<<<<<< HEAD
-        self.crowdController = crowdController(self.do_step, self.solve)
-    def start(self):
-        for actor in self.crowd.actors:
-            actor.crowd = self.crowd
-            actor.walker = True
-=======
         #инстанс синглетона контроллера
         self.crowdController
         self.construct()
     #Конструктор
     def construct(self):
         actors = []
-        for i in range(self.crowd_size):
-            pos = ???
+        #ТУТ НАДО СОЗДАВАТЬ АКТОРОВ. ТЕБЕ ВИДНЕЕ КАК. ПИШИ МНЕ
+        #for i in range(self.crowd_size):
+            pos = np.array([30,30])
             new_actor = Actor(pos, self.param, self.step, self.do_step, self.solve)
             actors.append(new_actor)
-        self.crowd = Crowd(??? self.actors)
-        for i in range(self.crowd_size):
-            Actor.crowd = self.crowd
-            Actor.walker = True
-        self.crowdController = CrowdController(self.do_step, self.solve)
->>>>>>> origin/master
-        
+        #ТУТ НАДО СОЗДАТЬ ТОЛПУ
+        self.crowd = Crowd(self.actors,self.walls, self.goals)
+        for actor in self.crowd.actors:
+            actor.crowd = self.crowd
 
-if __name__ == '__main__':
+        self.crowdController = CrowdController(self.do_step, self.solve)
+        

@@ -66,7 +66,6 @@ class Wall:
         if self.completed == False:
             self.en = end #Point
             self.completed = True
-        print('makeWall', self.extract())
         
     def extract(self):
         if self.completed:

@@ -66,12 +66,12 @@ class Window(QMainWindow):
         if fname[0]:
             return 0
 
-class Canvas(QWidget):
+class Canvas(QWidget): #сздание канвы, для лучшей видимости
     def __init__(self):
         super().__init__()
         self.initUI()
     def initUI(self):
-        #self.painter = Painter(self)
+        
         self.setMinimumSize(300,300)
               
     

@@ -4,12 +4,12 @@ Created on Tue May 23 02:47:19 2017
 
 @author: Наталья
 """
-import time
+#from render.renderer_hollow_v2 import *
 from visualisator.GraficFunction import Point, Node, Wall
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import numpy as np
+import numpy as np 
 
 class CommunicatePainter(QObject):
           flag = pyqtSignal(int)
@@ -63,7 +63,6 @@ class Painter(QWidget):
         self.setMouseTracking(True)
         
     def initUI(self):
-        print('NERE')
         
         self.col = QColor(255, 255, 255)
         self.setAutoFillBackground(True)
@@ -71,7 +70,8 @@ class Painter(QWidget):
         self.p.setColor(self.backgroundRole(), self.col)
         self.setPalette(self.p)
         
-        self.setGeometry(0,0,500,500)
+        self.setGeometry(0,0,4000,4000)
+        
         self.walls = []
         self.people = []
         self.np = 0
@@ -79,7 +79,9 @@ class Painter(QWidget):
         self.npoints = 0
         self.ep = 0 #end point
         self.button = None
+        
         self.show()
+        
         
     def paintEvent(self,event):    
         if self.button == 1:
@@ -116,6 +118,8 @@ class Painter(QWidget):
                 brush = QBrush(Qt.BDiagPattern)
                 qp3.setBrush(brush)
                 qp3.drawEllipse(self.ep.x(),self.ep.y(),20,20)
+                qp3.setFont(QFont('Decorative', 10))
+                qp3.drawText(self.ep.x() + 20, self.ep.y() + 20, 60, 20, 0, "EndPoint")
             qp3.end()
             
             
