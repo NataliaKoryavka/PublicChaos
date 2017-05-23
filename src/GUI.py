@@ -9,6 +9,7 @@ import sys
 from PyQt5.QtWidgets import QGridLayout,QVBoxLayout,QHBoxLayout,QComboBox,QMainWindow,QDockWidget,QAction,QFileDialog,QApplication, QWidget,QPushButton
 from PyQt5.QtGui import QColor,QIcon,QFont, QPainter
 from PyQt5.QtCore import QCoreApplication, Qt, pyqtSignal, QObject
+from Visualisator import Painter
 
 class Communicate(QObject):
 
@@ -70,7 +71,7 @@ class Canvas(QWidget):
         super().__init__()
         self.initUI()
     def initUI(self):
-        self.setMinimumSize(200,300)
+        self.setMinimumSize(300,300)
     def paintEvent(self, e):
         qp = QPainter()
         qp.begin(self)
@@ -98,6 +99,12 @@ class Interface(QWidget):
         self.p.setColor(self.backgroundRole(), self.col)
         self.setPalette(self.p)
       
+        self.canvas = Painter(self)
+        
+        getPerson = QAction('get person',self)
+        getPerson.triggered.connect(self.painter.decision.switchOnPerson)        
+        
+        
         grid = QGridLayout()
         
         self.list = QComboBox(self)       
@@ -106,11 +113,11 @@ class Interface(QWidget):
                
         self.btn_start = QPushButton('Start',self)
         
-        canvas = Canvas()
+        #self.canvas = Canvas()
         
         grid.addWidget(self.list,2,0)
         grid.addWidget(self.btn_start,6,0)
-        grid.addWidget(canvas,0,1,12,5)
+        grid.addWidget(self.canvas,0,1,12,5)
         self.setLayout(grid)
         
 if __name__ == '__main__':

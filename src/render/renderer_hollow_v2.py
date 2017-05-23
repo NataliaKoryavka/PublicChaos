@@ -92,8 +92,8 @@ class FieldFunction():
             return s_max
         if (x_max > x_min >= 0) and (s_max > s_min >= 0):
             return s_max + ((x - x_min)*(s_min - s_max))/(x_max - x_min)
-        else:
-            ???#виджет "вы неверно ввели параметры". Вернуться к началу
+        #else:
+            #виджет "вы неверно ввели параметры". Вернуться к началу
     @staticmethod        
     def power(x, s_min, s_max, x_min, x_max, c):
         if x >= x_max:
@@ -104,8 +104,8 @@ class FieldFunction():
             b = (s_min - s_max)*(c + x_min)*(c + x_max)/(x_min - x_max)
             a = s_max - b/(c + x_min)
             return a + b/(c + x)
-        else:
-            ???#виджет "вы неверно ввели параметры". Вернуться к началу
+        #else:
+            #виджет "вы неверно ввели параметры". Вернуться к началу
 
 #Рассчитывает значения полей цели, поля дискомфорта от препятствий(стен) и поля дискомфорта от людей. 
 class FieldSolver(FieldFunction, DensitySolver):
