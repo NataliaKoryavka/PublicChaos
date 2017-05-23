@@ -194,26 +194,17 @@ class CrowdController(metaclass=Singleton): #singleton
                 
 #Конструктор. Запускает каскадное создание инстансов, создает инстансы людей. Получает параметры из UI.
 class Constructor(metaclass=Singleton): #singleton
-    def __init__(self, crowd_size, step, param): #ЭТО ВВОДИТСЯ ПОЛЬЗОВАТЕЛЕМ В ИНТЕРФЕЙСЕ
-        self.crowd_size = crowd_size
+    def __init__(self, step, param): #ЭТО ВВОДИТСЯ ПОЛЬЗОВАТЕЛЕМ В ИНТЕРФЕЙСЕ
         self.param = param
         self.step = step
-        self.crowd
+        self.crowd = crowd
         self.do_step = threading.Event()
         self.solve = threading.Event()
-        self.crowdController
-        self.seed()
-    def seed(self):
-        actors = []
-        for i in range(self.crowd_size):
-            pos = ???
-            new_actor = Actor(pos, self.param, self.step, self.do_step, self.solve)
-            actors.append(new_actor)
-        self.crowd = Crowd(??? self.actors)
-        for i in range(self.crowd_size):
-            Actor.crowd = self.crowd
-            Actor.walker = True
-        self.crowdController = CrowdController(self.do_step, self.solve)
+        self.crowdController = crowdController(self.do_step, self.solve)
+    def start(self):
+        for actor in self.crowd.actors:
+            actor.crowd = self.crowd
+            actor.walker = True
         
 
 if __name__ == '__main__':
