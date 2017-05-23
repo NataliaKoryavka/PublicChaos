@@ -71,7 +71,7 @@ class Canvas(QWidget):
         super().__init__()
         self.initUI()
     def initUI(self):
-        
+        #self.painter = Painter(self)
         self.setMinimumSize(300,300)
               
     
