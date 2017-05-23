@@ -9,6 +9,7 @@ from visualisator.GraficFunction import Point, Node, Wall
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+import numpy as np
 
 class CommunicatePainter(QObject):
           flag = pyqtSignal(int)
@@ -69,79 +70,69 @@ class Painter(QWidget):
         self.setGeometry(0,0,500,500)
         self.walls = []
         self.people = []
+        self.np = 0
         self.pointlist = []
+        self.npoints = 0
         self.show()
         self.button = None
-    """   
-    def drawLastWall(self):
-        qp = QPainter()
-        wall = self.walls.pop()
-        qp.begin(self)
-        pen = QPen(Qt.black, 3, Qt.SolidLine)
-        qp.setPen(pen)
-        if wall.ready:
-            qp.drawLine(20,20,100,100)
-            #qp.drawLine(wall.extract())
-        qp.end()
-    """    
+
         
     def paintEvent(self,event):    
-        kol = len(self.people)
-        print(kol,' ',person.myQPoint())
-        
         if self.button == 1:
+            
             qp1 = QPainter()
             qp1.begin(self)
-            person = self.people[kol-1]
-            brush = QBrush(Qt.SolidPattern)
-            qp1.setBrush(brush)
-            qp1.drawEllipse(100,100, 7, 7)
-            qp1.setFont(QFont('Decorative', 10))
-            qp1.drawText(person.x() + 7, person.y() + 7, 30, 20, 0, person.name)
+            i = 1
+            for person in self.people:
+                print('drawPerson',person.x(), ' ' ,person.y())
+                brush = QBrush(Qt.SolidPattern)
+                qp1.setBrush(brush)
+                qp1.drawEllipse(person.x(),person.y(), 7, 7)
+                qp1.setFont(QFont('Decorative', 10))
+                qp1.drawText(person.x() + 7, person.y() + 7, 40, 20, 0, person.name+str(i))
+                i = i+1
             qp1.end()
             
             qp2 = QPainter()
-            wall = self.walls.pop()
             qp2.begin(self)
-            pen = QPen(Qt.black, 3, Qt.SolidLine)
-            qp2.setPen(pen)
-            if wall.ready:
-                qp2.drawLine(20,20,100,100)
-            #qp.drawLine(wall.extract())
+            for wall in self.walls:  
+                if wall.completed:
+                    pos = wall.extract()
+                    pen = QPen(Qt.black, 3, Qt.SolidLine)
+                    qp2.setPen(pen)
+                    qp2.drawLine(pos[0],pos[1],pos[2],pos[3])
+                else:
+                    brush = QBrush(Qt.SolidPattern)
+                    qp2.setBrush(brush)
+                    qp2.drawEllipse(wall.fn.x(),wall.fn.y(),3,3)
             qp2.end()
             
     def mousePressEvent(self, event):
         self.decMousePressEvent(self,event)
+        
     
     def makePerson(self,event):
-        text = u"person"
-        print('person')
-        if event.button() == Qt.LeftButton:
-            person = Node(event.x(),event.y(),text)
-            self.people.append(person)
-            #self.drawPerson(event)
-            print('endperson')
-            self.button = event.button()
-            self.signal.flag.emit()
-            #вставить ссылку на класс actor
+        person = Node( np.array([event.x(),event.y()]),u"P")
+        self.people.append(person)
+        self.np = self.np + 1
+        self.button = event.button()
+        self.update()
+        
+        
     def makeWall(self,event):
-         self.button = event.button()
-         self.update()
-    """    
-    def makeWall(self,event):
-        print('walls')
-        if event.button() == Qt.LeftButton:
-            point = Point(event.x(), event.y())
-            self.pointlist.append(point)
-            length = len(pointlist)
-            if length%2 == 0:
-                    point2 = self.pointlist.pop()
-                    point1 = self.pointlist.pop()
-                    wall = Wall(point1,u"Wall")
-                    wall.endOfWall(point2)
-                    self.walls.append(wall)
-                    #self.drawLastWall(event)  
-            self.signal.flag.emit()
-    """
-     
+        point = Point( np.array([event.x(),event.y()]) )
+        self.pointlist.append(point)
+        self.npoints = self.npoints + 1
+        if self.npoints%2 == 1:
+            point1 = self.pointlist.pop()
+            new_wall = Wall(point1)
+            self.walls.append(new_wall)
+        else:
+            point2 = self.pointlist.pop()
+            wall = self.walls.pop()
+            wall.endOfWall(point2)
+            self.walls.append(wall)
+        self.button = event.button()
+        self.update()
+        
     Press = (makePerson, makeWall)
