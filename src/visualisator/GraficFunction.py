@@ -37,7 +37,7 @@ class Node(Point):
 
     def setEnd(self):
         self.isEnd = True
-
+        
     def setUnallocated(self):
         self.isBeginning = False
         self.isEnd = False
@@ -51,3 +51,27 @@ class Node(Point):
     def extract(self):
         return (self.x(), self.y())
     
+    @staticmethod
+    def newNode(x,y,name):
+        v = Node(x,y,name)
+        return v
+    
+class Wall:
+    def __init__(self,first,name):
+        self.name = name
+        self.fn = first
+        self.completed = False
+        
+    def endOfWall(self,end):
+        if self.completed == False:
+            self.en = end
+            self.completed = True
+        self.pos = [fn,en]
+        
+    def extract(self):
+        if self.completed:
+            pos = []
+            for n in self.pos:
+                pos.append((n.x(),n.y()))
+            return pos
+        
