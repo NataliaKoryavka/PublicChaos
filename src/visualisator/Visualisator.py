@@ -41,14 +41,18 @@ class Decision:
         self.i = 0
         self.setDecisionPlan()
         self.setPaintPlan(self.plan)
-        print('switchOnPerson')
         
     def switchOnWall(self):
         self.i = 1
         self.setDecisionPlan()
-        self.setPaintPlan(self.plan)
-        print('switchonwall')
-    
+        self.setPaintPlan(self.plan)        
+        
+    def switchOnEndPoint(self):
+        self.i = 2
+        self.setDecisionPlan()
+        self.setPaintPlan(self.plan)        
+        
+        
 class Painter(QWidget):
     def __init__(self,parent):
         super().__init__(parent)
@@ -73,9 +77,9 @@ class Painter(QWidget):
         self.np = 0
         self.pointlist = []
         self.npoints = 0
-        self.show()
+        self.ep = 0 #end point
         self.button = None
-
+        self.show()
         
     def paintEvent(self,event):    
         if self.button == 1:
@@ -84,7 +88,6 @@ class Painter(QWidget):
             qp1.begin(self)
             i = 1
             for person in self.people:
-                print('drawPerson',person.x(), ' ' ,person.y())
                 brush = QBrush(Qt.SolidPattern)
                 qp1.setBrush(brush)
                 qp1.drawEllipse(person.x(),person.y(), 7, 7)
@@ -106,6 +109,15 @@ class Painter(QWidget):
                     qp2.setBrush(brush)
                     qp2.drawEllipse(wall.fn.x(),wall.fn.y(),3,3)
             qp2.end()
+            
+            qp3 = QPainter()
+            qp3.begin(self)
+            if self.ep != 0:
+                brush = QBrush(Qt.BDiagPattern)
+                qp3.setBrush(brush)
+                qp3.drawEllipse(self.ep.x(),self.ep.y(),20,20)
+            qp3.end()
+            
             
     def mousePressEvent(self, event):
         self.decMousePressEvent(self,event)
@@ -135,4 +147,15 @@ class Painter(QWidget):
         self.button = event.button()
         self.update()
         
-    Press = (makePerson, makeWall)
+    def makeEndPoint(self,event):
+        self.ep = Point( np.array([event.x(),event.y()]) )
+        self.button = event.button()
+        self.update()
+        
+    Press = (makePerson, makeWall,makeEndPoint)
+    
+    def buttonClicked(self):
+        sender = self.sender()
+        print('button ', sender.text())
+        
+        

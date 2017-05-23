@@ -98,17 +98,25 @@ class Interface(QWidget):
         getWall = QAction('Walls',self)
         getWall.triggered.connect(self.painter.decision.switchOnWall)
         
+        getEndPoint = QAction('EndPoint',self)
+        getEndPoint.triggered.connect(self.painter.decision.switchOnEndPoint)
+        
+        
+        
         self.listoftrig = []
         self.listoftrig.append(getPerson)
         self.listoftrig.append(getWall)
+        self.listoftrig.append(getEndPoint)
         
         self.list = QComboBox(self)       
         self.list.addItem('Person')
         self.list.addItem('Walls')
-               
+        self.list.addItem('EndPoint')
+        
         self.list.activated[str].connect(self.chooseObject)
         
         self.btn_start = QPushButton('Start',self)
+        self.btn_start.clicked.connect(self.painter.buttonClicked)
         
         grid.addWidget(self.list,2,0)
         grid.addWidget(self.btn_start,6,0)
